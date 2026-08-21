@@ -1,0 +1,857 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+  --background: #05070a;
+  --foreground: #f8fafc;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: var(--background);
+}
+
+body {
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+button,
+time,
+.current-temperature,
+.main-time,
+.colombia-time {
+  font-variant-numeric: tabular-nums;
+}
+
+.dashboard-shell {
+  position: relative;
+  display: grid;
+  grid-template-areas:
+    "weather clock"
+    "colombia colombia";
+  grid-template-columns: minmax(0, 37%) minmax(0, 63%);
+  grid-template-rows: minmax(0, 1fr) clamp(112px, 17.5dvh, 164px);
+  width: 100vw;
+  height: 100dvh;
+  min-height: 100svh;
+  overflow: hidden;
+  user-select: none;
+  background:
+    radial-gradient(circle at 68% 25%, rgba(78, 92, 114, 0.2), transparent 38%),
+    #05070a;
+}
+
+.weather-region {
+  z-index: 3;
+  grid-area: weather;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border-right: 1px solid rgba(255, 255, 255, 0.09);
+  background:
+    radial-gradient(circle at 15% 0%, rgba(50, 67, 86, 0.38), transparent 42%),
+    linear-gradient(145deg, rgba(7, 11, 16, 0.95), rgba(9, 10, 13, 0.86));
+  box-shadow: 20px 0 60px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(30px) saturate(120%);
+}
+
+.weather-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding:
+    max(30px, env(safe-area-inset-top))
+    clamp(24px, 3.9vw, 58px)
+    clamp(22px, 3.2dvh, 42px)
+    max(clamp(24px, 3.9vw, 58px), env(safe-area-inset-left));
+}
+
+.weather-condition {
+  display: flex;
+  align-items: center;
+  gap: 0.62rem;
+  min-height: 2.3rem;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: clamp(1rem, 1.42vw, 1.38rem);
+  font-weight: 450;
+  letter-spacing: -0.02em;
+}
+
+.current-temperature {
+  margin-top: clamp(0.55rem, 1.3dvh, 1.05rem);
+  color: #fff;
+  font-size: clamp(4.25rem, 8.2vw, 7.3rem);
+  font-weight: 360;
+  line-height: 0.92;
+  letter-spacing: -0.075em;
+  text-shadow: 0 3px 28px rgba(0, 0, 0, 0.28);
+}
+
+.location-name {
+  margin: clamp(0.9rem, 1.8dvh, 1.3rem) 0 0;
+  font-size: clamp(1.35rem, 2vw, 2rem);
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+}
+
+.weather-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.22rem 0.85rem;
+  margin-top: clamp(0.8rem, 1.4dvh, 1.15rem);
+  color: rgba(255, 255, 255, 0.64);
+  font-size: clamp(0.72rem, 1.03vw, 1rem);
+  line-height: 1.4;
+}
+
+.weather-metrics span:not(:last-child)::after {
+  content: "·";
+  margin-left: 0.85rem;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.weather-separator {
+  width: 100%;
+  height: 1px;
+  margin: clamp(1.15rem, 2.5dvh, 2.1rem) 0 clamp(1rem, 2.2dvh, 1.65rem);
+  flex: none;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04));
+}
+
+.weather-separator-tight {
+  margin: clamp(1rem, 2.1dvh, 1.55rem) 0 clamp(0.75rem, 1.35dvh, 1.05rem);
+}
+
+.hourly-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  flex: none;
+}
+
+.hourly-item {
+  display: grid;
+  justify-items: center;
+  gap: clamp(0.34rem, 0.9dvh, 0.7rem);
+  min-width: 0;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: clamp(0.84rem, 1.24vw, 1.18rem);
+  line-height: 1;
+}
+
+.hourly-item > span:last-child {
+  font-size: clamp(1.05rem, 1.62vw, 1.55rem);
+  font-weight: 470;
+}
+
+.hourly-icon {
+  width: clamp(1.9rem, 2.8vw, 2.65rem);
+  height: clamp(1.9rem, 2.8vw, 2.65rem);
+}
+
+.hourly-placeholder {
+  display: grid;
+  place-items: center;
+  width: clamp(1.9rem, 2.8vw, 2.65rem);
+  height: clamp(1.9rem, 2.8vw, 2.65rem);
+}
+
+.daily-list {
+  display: grid;
+  align-content: space-between;
+  gap: clamp(0.34rem, 0.75dvh, 0.62rem);
+  min-height: 0;
+  flex: 1;
+}
+
+.daily-row {
+  display: grid;
+  grid-template-columns: minmax(5.4rem, 1.45fr) minmax(2rem, 0.7fr) minmax(2.2rem, 0.5fr) minmax(2.2rem, 0.5fr);
+  align-items: center;
+  column-gap: clamp(0.5rem, 1.1vw, 1rem);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: clamp(0.82rem, 1.2vw, 1.12rem);
+}
+
+.daily-row > span:nth-last-child(-n + 2) {
+  justify-self: end;
+}
+
+.daily-icon {
+  width: clamp(1.45rem, 2vw, 2rem);
+  height: clamp(1.45rem, 2vw, 2rem);
+}
+
+.clock-region {
+  position: relative;
+  isolation: isolate;
+  grid-area: clock;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: #11151c;
+}
+
+.right-stack {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-rows: minmax(0, 46%) minmax(0, 54%);
+  width: 100%;
+  height: 100%;
+}
+
+.london-region,
+.radio-region {
+  min-width: 0;
+  min-height: 0;
+}
+
+.london-region {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.radio-region {
+  padding:
+    clamp(0.7rem, 1.4dvh, 1.1rem)
+    max(clamp(0.85rem, 1.6vw, 1.5rem), env(safe-area-inset-right))
+    clamp(0.75rem, 1.6dvh, 1.2rem)
+    clamp(0.85rem, 1.6vw, 1.5rem);
+}
+
+.dynamic-background,
+.background-image,
+.background-overlay {
+  position: absolute;
+  inset: 0;
+}
+
+.background-image {
+  z-index: -3;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0;
+  transform: scale(1.01);
+  transition: opacity 1.6s ease-in-out, transform 8s ease-out;
+}
+
+.background-image.is-active {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.background-overlay {
+  z-index: -1;
+  background:
+    linear-gradient(180deg, rgba(3, 6, 10, 0.18), rgba(3, 5, 8, 0.25)),
+    radial-gradient(circle at center, transparent 20%, rgba(0, 0, 0, 0.28) 100%);
+}
+
+.main-clock {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  height: 100%;
+  padding: clamp(1rem, 2.6vw, 2.5rem);
+  text-align: center;
+  text-shadow: 0 3px 28px rgba(0, 0, 0, 0.58), 0 1px 2px rgba(0, 0, 0, 0.85);
+}
+
+.main-time {
+  color: #fff;
+  font-size: clamp(5.8rem, 11.2vw, 11rem);
+  font-weight: 360;
+  line-height: 0.78;
+  letter-spacing: -0.075em;
+  white-space: nowrap;
+}
+
+.main-date {
+  margin: clamp(0.9rem, 2dvh, 1.65rem) 0 0;
+  color: rgba(255, 255, 255, 0.94);
+  font-size: clamp(1.2rem, 2vw, 2rem);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+}
+
+.radio-player {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: clamp(0.55rem, 1.2dvh, 0.9rem);
+  height: 100%;
+  min-height: 0;
+  padding: clamp(0.75rem, 1.5dvh, 1.15rem);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: clamp(1.1rem, 2vw, 1.65rem);
+  background:
+    radial-gradient(circle at 10% 20%, rgba(102, 143, 185, 0.12), transparent 36%),
+    linear-gradient(135deg, rgba(7, 11, 16, 0.7), rgba(9, 10, 13, 0.48));
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.22), inset 0 1px rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(24px) saturate(125%);
+}
+
+.radio-now-playing {
+  display: grid;
+  grid-template-columns: clamp(5.2rem, 9.6vw, 8.2rem) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(0.75rem, 1.7vw, 1.5rem);
+  min-height: 0;
+}
+
+.current-station-logo {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: clamp(1rem, 1.7vw, 1.4rem);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.28);
+}
+
+.station-logo {
+  object-fit: contain;
+}
+
+.current-station-logo .station-logo {
+  padding: clamp(0.4rem, 0.8vw, 0.7rem);
+}
+
+.station-details {
+  min-width: 0;
+}
+
+.station-details h2 {
+  max-width: 28rem;
+  margin: 0.28rem 0 0;
+  overflow: hidden;
+  color: #fff;
+  font-size: clamp(1.15rem, 2vw, 1.9rem);
+  font-weight: 560;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.station-details p {
+  margin: clamp(0.25rem, 0.6dvh, 0.5rem) 0 0;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: clamp(0.75rem, 1.05vw, 1rem);
+  letter-spacing: -0.01em;
+}
+
+.radio-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: rgba(255, 255, 255, 0.64);
+  font-size: clamp(0.64rem, 0.82vw, 0.78rem);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.radio-status-playing {
+  color: #b9f6d1;
+}
+
+.radio-status-error,
+.radio-status-unavailable {
+  color: rgba(255, 220, 178, 0.84);
+}
+
+.radio-controls {
+  display: grid;
+  grid-template-columns: auto minmax(8.5rem, 11.5rem);
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.radio-play-button,
+.volume-button,
+.radio-retry-button {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: white;
+  font: inherit;
+  background: rgba(255, 255, 255, 0.09);
+  cursor: pointer;
+}
+
+.radio-play-button {
+  display: grid;
+  place-items: center;
+  width: clamp(3.4rem, 4.8vw, 4.4rem);
+  height: clamp(3.4rem, 4.8vw, 4.4rem);
+  border-radius: 999px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.24);
+}
+
+.radio-play-button svg {
+  width: 42%;
+  height: 42%;
+}
+
+.radio-play-button:disabled {
+  color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.04);
+  cursor: not-allowed;
+}
+
+.radio-loading-icon {
+  animation: radio-spin 1s linear infinite;
+}
+
+.volume-control {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+.volume-button {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  flex: none;
+  border-radius: 999px;
+}
+
+.volume-button svg {
+  width: 1.15rem;
+}
+
+.volume-slider {
+  width: 100%;
+  height: 2rem;
+  accent-color: rgba(255, 255, 255, 0.92);
+  cursor: pointer;
+}
+
+.radio-retry-button {
+  grid-column: 1 / -1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 2.55rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+}
+
+.radio-retry-button svg {
+  width: 0.95rem;
+}
+
+.station-selector {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: clamp(0.35rem, 0.7vw, 0.65rem);
+}
+
+.station-button {
+  position: relative;
+  display: grid;
+  grid-template-columns: clamp(2.2rem, 3.3vw, 3.1rem) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(0.3rem, 0.55vw, 0.5rem);
+  min-width: 0;
+  min-height: clamp(3.8rem, 7dvh, 5.1rem);
+  padding: clamp(0.35rem, 0.7vw, 0.55rem);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: clamp(0.8rem, 1.2vw, 1rem);
+  color: rgba(255, 255, 255, 0.7);
+  font: inherit;
+  background: rgba(255, 255, 255, 0.055);
+  cursor: pointer;
+  transition: border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+}
+
+.station-button.is-active {
+  border-color: rgba(255, 255, 255, 0.28);
+  color: white;
+  background: rgba(255, 255, 255, 0.13);
+  box-shadow: 0 0 24px rgba(141, 190, 229, 0.1);
+}
+
+.station-logo-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 0.65rem;
+  background: rgba(255, 255, 255, 0.94);
+}
+
+.station-logo-frame .station-logo {
+  padding: 0.25rem;
+}
+
+.station-button-label {
+  overflow: hidden;
+  font-size: clamp(0.62rem, 0.8vw, 0.76rem);
+  font-weight: 550;
+  line-height: 1.05;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.playing-dot,
+.unavailable-dot {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.45rem;
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 999px;
+}
+
+.playing-dot {
+  background: #8be3ad;
+  box-shadow: 0 0 10px rgba(139, 227, 173, 0.7);
+}
+
+.unavailable-dot {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.radio-play-button:focus-visible,
+.volume-button:focus-visible,
+.radio-retry-button:focus-visible,
+.station-button:focus-visible,
+.volume-slider:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.92);
+  outline-offset: 2px;
+}
+
+@keyframes radio-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.colombia-region {
+  position: relative;
+  z-index: 4;
+  grid-area: colombia;
+  overflow: hidden;
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
+  background:
+    radial-gradient(circle at 22% 0%, rgba(103, 69, 43, 0.22), transparent 38%),
+    linear-gradient(105deg, rgba(21, 20, 20, 0.97), rgba(8, 10, 13, 0.97));
+  box-shadow: 0 -18px 44px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(24px) saturate(110%);
+}
+
+.colombia-clock {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  height: 100%;
+  padding-bottom: max(0px, env(safe-area-inset-bottom));
+  text-shadow: 0 3px 24px rgba(0, 0, 0, 0.45);
+}
+
+.colombia-label {
+  color: rgba(255, 255, 255, 0.78);
+  font-size: clamp(0.72rem, 1.1vw, 1.05rem);
+  font-weight: 520;
+  letter-spacing: 0.12em;
+}
+
+.colombia-time {
+  margin-top: clamp(0.22rem, 0.45dvh, 0.45rem);
+  color: #fff;
+  font-size: clamp(3.35rem, 6.5vw, 6.25rem);
+  font-weight: 370;
+  line-height: 0.82;
+  letter-spacing: -0.055em;
+}
+
+.wake-lock-button {
+  position: fixed;
+  z-index: 20;
+  right: max(1rem, env(safe-area-inset-right));
+  bottom: max(calc(clamp(112px, 17.5dvh, 164px) + 1rem), env(safe-area-inset-bottom));
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 48px;
+  padding: 0.72rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  color: white;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 520;
+  background: rgba(7, 10, 14, 0.72);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(18px);
+  cursor: pointer;
+}
+
+.wake-lock-button:focus-visible {
+  outline: 2px solid #fbbf24;
+  outline-offset: 3px;
+}
+
+@media (max-height: 720px) and (orientation: landscape) {
+  .weather-panel {
+    padding-top: max(20px, env(safe-area-inset-top));
+    padding-bottom: 16px;
+  }
+
+  .weather-separator {
+    margin-top: 0.85rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .weather-separator-tight {
+    margin-top: 0.75rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .current-temperature {
+    margin-top: 0.35rem;
+    font-size: clamp(3.8rem, 7.4vw, 5.4rem);
+  }
+
+  .location-name {
+    margin-top: 0.65rem;
+  }
+
+  .weather-metrics {
+    margin-top: 0.55rem;
+  }
+
+  .daily-list {
+    gap: 0.22rem;
+  }
+
+  .right-stack {
+    grid-template-rows: minmax(0, 43%) minmax(0, 57%);
+  }
+
+  .main-time {
+    font-size: clamp(5rem, 9.8vw, 8rem);
+  }
+
+  .main-date {
+    margin-top: 0.65rem;
+  }
+
+  .radio-region {
+    padding-top: 0.55rem;
+    padding-bottom: 0.55rem;
+  }
+
+  .radio-player {
+    gap: 0.45rem;
+    padding: 0.58rem;
+  }
+
+  .radio-now-playing {
+    grid-template-columns: clamp(4rem, 7.2vw, 5.6rem) minmax(0, 1fr) auto;
+  }
+
+  .station-button {
+    min-height: 3.25rem;
+  }
+}
+
+@media (orientation: portrait) {
+  .dashboard-shell {
+    grid-template-areas:
+      "clock"
+      "weather"
+      "colombia";
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(430px, 48dvh) minmax(0, 38dvh) minmax(104px, 14dvh);
+  }
+
+  .weather-region {
+    border-top: 1px solid rgba(255, 255, 255, 0.09);
+    border-right: 0;
+  }
+
+  .weather-panel {
+    display: grid;
+    grid-template-columns: minmax(0, 0.95fr) 1px minmax(0, 1.5fr);
+    grid-template-rows: auto 1px minmax(0, 1fr);
+    gap: 0.7rem 1.35rem;
+    padding: clamp(1rem, 3.8vw, 2rem);
+  }
+
+  .weather-panel > section:first-child {
+    grid-row: 1 / 4;
+  }
+
+  .weather-panel > .weather-separator:first-of-type {
+    grid-column: 2;
+    grid-row: 1 / 4;
+    width: 1px;
+    height: 100%;
+    margin: 0;
+  }
+
+  .hourly-grid {
+    grid-column: 3;
+  }
+
+  .weather-separator-tight {
+    grid-column: 3;
+    margin: 0;
+  }
+
+  .daily-list {
+    grid-column: 3;
+  }
+
+  .current-temperature {
+    font-size: clamp(4.2rem, 15vw, 7rem);
+  }
+
+  .weather-metrics {
+    display: grid;
+    gap: 0.2rem;
+  }
+
+  .weather-metrics span::after {
+    display: none;
+  }
+
+  .main-time {
+    font-size: clamp(5.4rem, 19vw, 9.5rem);
+  }
+
+  .main-date {
+    margin-top: 0.9rem;
+    font-size: clamp(1.25rem, 4.3vw, 2.3rem);
+  }
+
+  .right-stack {
+    grid-template-rows: minmax(0, 43%) minmax(0, 57%);
+  }
+
+  .radio-region {
+    padding-left: max(clamp(0.8rem, 2vw, 1.25rem), env(safe-area-inset-left));
+  }
+
+  .station-button {
+    grid-template-columns: clamp(2.4rem, 7vw, 3.2rem) minmax(0, 1fr);
+  }
+
+  .wake-lock-button {
+    bottom: max(calc(14dvh + 1rem), env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 640px) and (orientation: portrait) {
+  .weather-panel {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1px auto 1px minmax(0, 1fr);
+    gap: 0.5rem;
+  }
+
+  .weather-panel > section:first-child {
+    grid-row: auto;
+  }
+
+  .weather-panel > .weather-separator:first-of-type,
+  .hourly-grid,
+  .weather-separator-tight,
+  .daily-list {
+    grid-column: 1;
+  }
+
+  .weather-panel > .weather-separator:first-of-type {
+    grid-row: auto;
+    width: 100%;
+    height: 1px;
+  }
+
+  .current-temperature {
+    font-size: 3.5rem;
+  }
+
+  .location-name {
+    margin-top: 0.45rem;
+  }
+
+  .weather-metrics {
+    display: flex;
+    margin-top: 0.45rem;
+  }
+
+  .dashboard-shell {
+    grid-template-rows: minmax(410px, 50dvh) minmax(0, 36dvh) minmax(100px, 14dvh);
+  }
+
+  .radio-now-playing {
+    grid-template-columns: 4.4rem minmax(0, 1fr);
+    gap: 0.65rem;
+  }
+
+  .radio-controls {
+    grid-column: 1 / -1;
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .station-selector {
+    gap: 0.28rem;
+  }
+
+  .station-button {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    min-height: 4.35rem;
+    padding: 0.3rem;
+  }
+
+  .station-logo-frame {
+    width: 2.45rem;
+  }
+
+  .station-button-label {
+    width: 100%;
+    font-size: 0.56rem;
+    text-align: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
