@@ -20,12 +20,19 @@ export function formatTime(date: Date, timeZone: string): string {
 }
 
 export function formatFullDate(date: Date, timeZone: string): string {
-  return new Intl.DateTimeFormat("es-ES", {
+  const parts = new Intl.DateTimeFormat("es-ES", {
     weekday: "long",
     day: "numeric",
     month: "long",
     timeZone,
-  }).format(date);
+  }).formatToParts(date);
+
+  return parts
+    .map((part) => {
+      if (part.type !== "weekday" && part.type !== "month") return part.value;
+      return part.value.charAt(0).toLocaleUpperCase("es-ES") + part.value.slice(1);
+    })
+    .join("");
 }
 
 export function formatForecastWeekday(localDate: string): string {

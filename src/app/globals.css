@@ -35,20 +35,16 @@ body {
 
 button,
 time,
-.current-temperature,
-.main-time,
-.colombia-time {
+.current-temperature {
   font-variant-numeric: tabular-nums;
 }
 
 .dashboard-shell {
   position: relative;
   display: grid;
-  grid-template-areas:
-    "weather clock"
-    "colombia colombia";
+  grid-template-areas: "weather clock";
   grid-template-columns: minmax(0, 37%) minmax(0, 63%);
-  grid-template-rows: minmax(0, 1fr) clamp(112px, 17.5dvh, 164px);
+  grid-template-rows: minmax(0, 1fr);
   width: 100vw;
   height: 100dvh;
   min-height: 100svh;
@@ -214,19 +210,23 @@ time,
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-rows: minmax(0, 46%) minmax(0, 54%);
+  grid-template-rows: minmax(0, 44%) minmax(0, 56%);
   width: 100%;
   height: 100%;
 }
 
-.london-region,
+.time-region,
 .radio-region {
   min-width: 0;
   min-height: 0;
 }
 
-.london-region {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+.time-region {
+  padding:
+    max(clamp(0.75rem, 1.7dvh, 1.35rem), env(safe-area-inset-top))
+    max(clamp(0.85rem, 1.6vw, 1.5rem), env(safe-area-inset-right))
+    clamp(0.4rem, 0.8dvh, 0.7rem)
+    clamp(0.85rem, 1.6vw, 1.5rem);
 }
 
 .radio-region {
@@ -265,34 +265,76 @@ time,
     radial-gradient(circle at center, transparent 20%, rgba(0, 0, 0, 0.28) 100%);
 }
 
-.main-clock {
-  position: relative;
-  z-index: 1;
+.time-cards {
+  display: grid;
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: clamp(0.45rem, 1.1dvh, 0.8rem);
+  height: 100%;
+  min-height: 0;
+}
+
+.time-card {
   display: grid;
   place-content: center;
-  justify-items: center;
-  height: 100%;
-  padding: clamp(1rem, 2.6vw, 2.5rem);
+  min-width: 0;
+  min-height: 0;
+  padding: clamp(0.55rem, 1.25dvh, 1rem) clamp(0.8rem, 1.8vw, 1.5rem);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: clamp(1.05rem, 1.8vw, 1.5rem);
+  background:
+    radial-gradient(circle at 12% 0%, rgba(139, 174, 211, 0.15), transparent 43%),
+    linear-gradient(135deg, rgba(8, 12, 17, 0.67), rgba(8, 9, 12, 0.42));
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2), inset 0 1px rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(22px) saturate(120%);
   text-align: center;
   text-shadow: 0 3px 28px rgba(0, 0, 0, 0.58), 0 1px 2px rgba(0, 0, 0, 0.85);
 }
 
-.main-time {
+.time-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.7rem, 1.5vw, 1.25rem);
+  min-width: 0;
+}
+
+.time-card-flag {
+  flex: none;
+  font-size: clamp(1.65rem, 3vw, 2.75rem);
+  line-height: 1;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.28));
+}
+
+.time-card-time {
   color: #fff;
-  font-size: clamp(5.8rem, 11.2vw, 11rem);
-  font-weight: 360;
-  line-height: 0.78;
-  letter-spacing: -0.075em;
+  font-size: clamp(3rem, 6.75vw, 6rem);
+  font-weight: 370;
+  line-height: 0.8;
+  letter-spacing: -0.065em;
   white-space: nowrap;
 }
 
-.main-date {
-  margin: clamp(0.9rem, 2dvh, 1.65rem) 0 0;
-  color: rgba(255, 255, 255, 0.94);
-  font-size: clamp(1.2rem, 2vw, 2rem);
-  font-weight: 400;
+.time-card-primary .time-card-time {
+  font-size: clamp(3.6rem, 8vw, 7.2rem);
+}
+
+.time-card-meta {
+  max-width: 100%;
+  margin: clamp(0.38rem, 0.8dvh, 0.65rem) 0 0;
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: clamp(0.72rem, 1.1vw, 1rem);
+  font-weight: 410;
   line-height: 1.05;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.02em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.time-card-location {
+  color: rgba(255, 255, 255, 0.96);
+  font-weight: 590;
 }
 
 .radio-player {
@@ -556,49 +598,11 @@ time,
   }
 }
 
-.colombia-region {
-  position: relative;
-  z-index: 4;
-  grid-area: colombia;
-  overflow: hidden;
-  border-top: 1px solid rgba(255, 255, 255, 0.09);
-  background:
-    radial-gradient(circle at 22% 0%, rgba(103, 69, 43, 0.22), transparent 38%),
-    linear-gradient(105deg, rgba(21, 20, 20, 0.97), rgba(8, 10, 13, 0.97));
-  box-shadow: 0 -18px 44px rgba(0, 0, 0, 0.25);
-  backdrop-filter: blur(24px) saturate(110%);
-}
-
-.colombia-clock {
-  display: grid;
-  place-content: center;
-  justify-items: center;
-  height: 100%;
-  padding-bottom: max(0px, env(safe-area-inset-bottom));
-  text-shadow: 0 3px 24px rgba(0, 0, 0, 0.45);
-}
-
-.colombia-label {
-  color: rgba(255, 255, 255, 0.78);
-  font-size: clamp(0.72rem, 1.1vw, 1.05rem);
-  font-weight: 520;
-  letter-spacing: 0.12em;
-}
-
-.colombia-time {
-  margin-top: clamp(0.22rem, 0.45dvh, 0.45rem);
-  color: #fff;
-  font-size: clamp(3.35rem, 6.5vw, 6.25rem);
-  font-weight: 370;
-  line-height: 0.82;
-  letter-spacing: -0.055em;
-}
-
 .wake-lock-button {
   position: fixed;
   z-index: 20;
   right: max(1rem, env(safe-area-inset-right));
-  bottom: max(calc(clamp(112px, 17.5dvh, 164px) + 1rem), env(safe-area-inset-bottom));
+  bottom: max(1rem, env(safe-area-inset-bottom));
   display: inline-flex;
   align-items: center;
   gap: 0.55rem;
@@ -655,15 +659,37 @@ time,
   }
 
   .right-stack {
-    grid-template-rows: minmax(0, 43%) minmax(0, 57%);
+    grid-template-rows: minmax(0, 44%) minmax(0, 56%);
   }
 
-  .main-time {
-    font-size: clamp(5rem, 9.8vw, 8rem);
+  .time-region {
+    padding-top: max(0.55rem, env(safe-area-inset-top));
+    padding-bottom: 0.3rem;
   }
 
-  .main-date {
-    margin-top: 0.65rem;
+  .time-cards {
+    gap: 0.4rem;
+  }
+
+  .time-card {
+    padding-block: 0.42rem;
+  }
+
+  .time-card-time {
+    font-size: clamp(2.75rem, 5.8vw, 4.2rem);
+  }
+
+  .time-card-primary .time-card-time {
+    font-size: clamp(3.3rem, 7vw, 5.1rem);
+  }
+
+  .time-card-flag {
+    font-size: clamp(1.4rem, 2.5vw, 2rem);
+  }
+
+  .time-card-meta {
+    margin-top: 0.28rem;
+    font-size: clamp(0.67rem, 0.95vw, 0.82rem);
   }
 
   .radio-region {
@@ -689,10 +715,9 @@ time,
   .dashboard-shell {
     grid-template-areas:
       "clock"
-      "weather"
-      "colombia";
+      "weather";
     grid-template-columns: 1fr;
-    grid-template-rows: minmax(430px, 48dvh) minmax(0, 38dvh) minmax(104px, 14dvh);
+    grid-template-rows: minmax(0, 55dvh) minmax(0, 45dvh);
   }
 
   .weather-region {
@@ -746,13 +771,16 @@ time,
     display: none;
   }
 
-  .main-time {
-    font-size: clamp(5.4rem, 19vw, 9.5rem);
+  .time-card-time {
+    font-size: clamp(3.1rem, 11vw, 5.2rem);
   }
 
-  .main-date {
-    margin-top: 0.9rem;
-    font-size: clamp(1.25rem, 4.3vw, 2.3rem);
+  .time-card-primary .time-card-time {
+    font-size: clamp(3.7rem, 13vw, 6.3rem);
+  }
+
+  .time-card-meta {
+    font-size: clamp(0.76rem, 2.4vw, 1rem);
   }
 
   .right-stack {
@@ -767,9 +795,6 @@ time,
     grid-template-columns: clamp(2.4rem, 7vw, 3.2rem) minmax(0, 1fr);
   }
 
-  .wake-lock-button {
-    bottom: max(calc(14dvh + 1rem), env(safe-area-inset-bottom));
-  }
 }
 
 @media (max-width: 640px) and (orientation: portrait) {
@@ -810,7 +835,7 @@ time,
   }
 
   .dashboard-shell {
-    grid-template-rows: minmax(410px, 50dvh) minmax(0, 36dvh) minmax(100px, 14dvh);
+    grid-template-rows: minmax(0, 56dvh) minmax(0, 44dvh);
   }
 
   .radio-now-playing {

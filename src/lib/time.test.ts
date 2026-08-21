@@ -20,9 +20,16 @@ describe("time and weather formatting", () => {
 
   it("formats Spanish dates and forecast values", () => {
     const date = new Date("2026-08-21T12:00:00Z");
-    expect(formatFullDate(date, "Europe/London")).toBe("viernes, 21 de agosto");
+    expect(formatFullDate(date, "Europe/London")).toBe("Viernes, 21 de Agosto");
     expect(formatForecastWeekday("2026-08-21")).toBe("Viernes");
     expect(formatForecastHour("2026-08-21T14:00")).toBe("14:00");
     expect(formatTemperature(18.6, true)).toBe("19°C");
+  });
+
+  it("capitalizes Spanish weekday and month without uppercasing the date", () => {
+    const date = new Date("2026-08-22T12:00:00Z");
+    expect(formatFullDate(date, "America/Bogota")).toBe(
+      "Sábado, 22 de Agosto",
+    );
   });
 });
