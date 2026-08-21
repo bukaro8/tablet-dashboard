@@ -39,6 +39,7 @@ describe("RadioPlayer", () => {
 
   afterEach(() => {
     cleanup();
+    Reflect.deleteProperty(navigator, "mediaSession");
     vi.unstubAllGlobals();
   });
 
@@ -155,6 +156,99 @@ describe("RadioPlayer", () => {
     );
     await waitFor(() => expect(play).toHaveBeenCalledOnce());
     expect(audio?.src).toContain("BLURADIO_ADP_SC");
+  });
+
+  it("switches from La FM to a fresh Alerta session and stops it cleanly", async () => {
+    const user = userEvent.setup();
+    const { container } = render(<RadioPlayer />);
+    const audio = container.querySelector("audio") as HTMLAudioElement;
+    fetchMock
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            src: { icecast: "https://audio.example/la-fm-session" },
+          }),
+          { status: 200 },
+        ),
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            src: { icecast: "https://audio.example/alerta-fresh-session.aac" },
+          }),
+          { status: 200 },
+        ),
+      );
+
+    await user.click(
+      screen.getByRole("button", { name: "Seleccionar La FM Bucaramanga" }),
+    );
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledOnce());
+
+    await user.click(
+      screen.getByRole("button", { name: "Seleccionar Alerta Bucaramanga" }),
+    );
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+
+    const alertaEndpoint = fetchMock.mock.calls[1][0] as URL;
+    expect(alertaEndpoint.pathname).toContain("632cc607bc02c60329992b8a");
+    expect(alertaEndpoint.searchParams.get("player")).toBe(
+      "player-audio-ott-rcn",
+    );
+    expect(audio.src).toBe("https://audio.example/alerta-fresh-session.aac");
+    expect(pause).toHaveBeenCalledTimes(2);
+
+    fireEvent.playing(audio);
+    await user.click(screen.getByRole("button", { name: "Pausar radio" }));
+    expect(pause).toHaveBeenCalledTimes(3);
+    expect(screen.getByText("En pausa")).toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole("button", { name: "Seleccionar Blu Radio" }),
+    );
+    expect(pause).toHaveBeenCalledTimes(4);
+    expect(audio.src).toContain("BLURADIO_ADP_SC");
+  });
+
+  it("updates Media Session metadata for Alerta", async () => {
+    const user = userEvent.setup();
+    const mediaMetadata = vi.fn(function (metadata: MediaMetadataInit) {
+      return metadata;
+    });
+    Object.defineProperty(navigator, "mediaSession", {
+      configurable: true,
+      value: {
+        metadata: null,
+        playbackState: "none",
+        setActionHandler: vi.fn(),
+      },
+    });
+    vi.stubGlobal("MediaMetadata", mediaMetadata);
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          src: { icecast: "https://audio.example/alerta-session.aac" },
+        }),
+        { status: 200 },
+      ),
+    );
+
+    render(<RadioPlayer />);
+    await user.click(
+      screen.getByRole("button", { name: "Seleccionar Alerta Bucaramanga" }),
+    );
+
+    await waitFor(() =>
+      expect(mediaMetadata).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          title: "Alerta Bucaramanga",
+          artist: "Radio Colombia",
+          artwork: [
+            expect.objectContaining({ src: "http://localhost/radio/alerta.png" }),
+          ],
+        }),
+      ),
+    );
   });
 
   it("stores volume changes on the device", () => {

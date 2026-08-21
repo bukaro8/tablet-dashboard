@@ -9,6 +9,7 @@ export type RadioStation = {
   streamType?: "mediastream";
   streamId?: string;
   playerId?: string;
+  analyticsName?: string;
   unavailableMessage?: string;
 };
 
@@ -70,5 +71,18 @@ export const RADIO_STATIONS = [
     streamType: "mediastream",
     streamId: "632c9b23d1dcd7027f32f7fe",
     playerId: "68a4a77f6572bb343c5b6e54",
+    analyticsName: "lafm",
+  },
+  {
+    id: "alerta-bucaramanga",
+    name: "Alerta Bucaramanga",
+    shortName: "Alerta",
+    frequency: "1180 AM",
+    city: "Bucaramanga",
+    logo: "/radio/alerta.png",
+    streamType: "mediastream",
+    streamId: "632cc607bc02c60329992b8a",
+    playerId: "player-audio-ott-rcn",
+    analyticsName: "rcn",
   },
 ] as const satisfies readonly RadioStation[];

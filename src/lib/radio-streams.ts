@@ -48,7 +48,9 @@ export async function getMediastreamStreamUrl(
   endpoint.searchParams.set("metadata", "true");
   endpoint.searchParams.set("player", station.playerId);
   endpoint.searchParams.set("language", "es");
-  endpoint.searchParams.set("an", "lafm");
+  if (station.analyticsName) {
+    endpoint.searchParams.set("an", station.analyticsName);
+  }
   endpoint.searchParams.set("at", "web-app");
 
   const response = await fetch(endpoint, {
@@ -74,4 +76,3 @@ export async function resolveStationStream(
   }
   throw new Error("La emisora no tiene una señal disponible");
 }
-
